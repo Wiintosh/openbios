@@ -563,13 +563,14 @@ arch_of_init(void)
     boot_device = pop_fstr_copy();
 
     if (boot_device && strcmp(boot_device, "disk") == 0) {
-        boot_path = "cd";
+        boot_path = "hd";
 
         snprintf(buf, sizeof(buf),
                     "%s:,\\\\:tbxi "
                     "%s:,\\ppc\\bootinfo.txt "
-                    "%s:,%%BOOT",
-                    boot_path, boot_path, boot_path);
+                    "%s:,%%BOOT"
+                    "%s:,\\System\\Library\\CoreServices\\BootX",
+                    boot_path, boot_path, boot_path, boot_path);
 
         push_str(buf);
         fword("encode-string");
