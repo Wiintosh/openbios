@@ -82,7 +82,7 @@ const uint16_t VIDEO_Mode640X480NtscpYUV16[64] = {
 // Sets the location of the XFB.
 //
 static void vi_set_xfb(unsigned long fb_addr) {
-  
+
   vi_write32(WII_VI_REG_TFBL, WII_VI_REG_TFBL_PAGE_OFFSET | (fb_addr >> 5));
 
   vi_write32(WII_VI_REG_BFBL, WII_VI_REG_BFBL_PAGE_OFFSET | (fb_addr >> 5));

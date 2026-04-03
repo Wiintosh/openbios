@@ -327,8 +327,8 @@ static int sdhc_command(sdhc_device_t *sdhc, uint8_t commandIndex, uint8_t respo
     // Copy to temp buffer.
     //
     if (!bufferRead) {
-        memcpy(sdhc->buffer, buffer, blockCount * kSDBlockSize);
-        flush_dcache_range((char*)sdhc->buffer, (char*)sdhc->buffer + (blockCount * kSDBlockSize));
+      memcpy(sdhc->buffer, buffer, blockCount * kSDBlockSize);
+      flush_dcache_range((char*)sdhc->buffer, (char*)sdhc->buffer + (blockCount * kSDBlockSize));
     }
 
     commandValue   |= kSDHCRegCommandDataPresent;
@@ -670,7 +670,7 @@ static void ob_wii_sdhc_read_blocks(int *idx) {
     unsigned char *dest = (unsigned char *)cell2pointer(POP());
     sdhc_device_t *sdhc = *(sdhc_device_t **)idx;
 
-    SDHC_DPRINTF("ob_wii_sdhc_read_blocks %lx block=%ld n=%ld\n",
+    SDHC_DPRINTF("%lx block=%ld n=%ld\n",
                 (unsigned long)dest, (unsigned long)blk, (long)n);
 
     while (n) {
@@ -679,7 +679,7 @@ static void ob_wii_sdhc_read_blocks(int *idx) {
             len = SDHC_BUFFER_SIZE / kSDBlockSize;
 
         if (sdhc_command(sdhc, kSDCommandReadMultipleBlock, kSDHCResponseTypeR1, blk, dest, len, 1, NULL)) {
-            SDHC_DPRINTF("ob_wii_sdhc_read_blocks: error\n");
+            SDHC_DPRINTF("error\n");
             RET(0);
         }
 

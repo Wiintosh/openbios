@@ -357,10 +357,10 @@ static void ffilll(void)
     u32 bytes = POP();
     u32 *laddr = (u32 *)cell2pointer(POP());
     u32 len;
-    
+
     for (len = 0; len < bytes / sizeof(u32); len++) {
         *laddr++ = longval;
-    }   
+    }
 }
 
 /*
@@ -622,7 +622,7 @@ arch_of_init(void)
         //
         out_be32((volatile unsigned int*)0x0D0400CC, in_be32((volatile unsigned int*)0x0D0400CC) | 0xE9800);
     }
-    
+
     //
     // Reset EHCI controllers to force all devices to OHCI.
     //
@@ -635,20 +635,26 @@ arch_of_init(void)
     //
     // Initialize OHCI controllers.
     //
+    // Rear OHCI
     push_str("/usb@0d050000");
     fword("find-device");
     dnode = get_cur_dev();
     ob_usb_ohci_init(get_path_from_ph(dnode), get_int_property(dnode, "reg", NULL));
+
+    // Internal Bluetooth OHCI
     push_str("/usb@0d060000");
     fword("find-device");
     dnode = get_cur_dev();
     ob_usb_ohci_init(get_path_from_ph(dnode), get_int_property(dnode, "reg", NULL));
 
     if (wii_platform == WII_CAFE) {
+        // Front OHCI
         push_str("/usb@0d130000");
         fword("find-device");
         dnode = get_cur_dev();
         ob_usb_ohci_init(get_path_from_ph(dnode), get_int_property(dnode, "reg", NULL));
+
+        // GamePad OHCI
         push_str("/usb@0d150000");
         fword("find-device");
         dnode = get_cur_dev();
@@ -662,7 +668,7 @@ arch_of_init(void)
     fword("find-device");
     dnode = get_cur_dev();
     ob_wii_shdc_init(get_path_from_ph(dnode), get_int_property(dnode, "reg", NULL));
-    
+
     device_end();
 
     //
@@ -680,7 +686,7 @@ arch_of_init(void)
 
     /* Implementation of adler32 word (required by OS 9, BootX) */
     bind_func("(adler32)", adler32);
-    
+
     bind_func("platform-boot", boot);
     bind_func("(arch-go)", arch_go);
 
