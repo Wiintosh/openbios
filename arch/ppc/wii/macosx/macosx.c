@@ -90,10 +90,11 @@ int macosx_patch(void) {
     mkext_header    mkextHeader;
     unsigned long   prop[2];
     char            mkextName[32];
+    char            mkextPath[32];
     void            *newDT;
     unsigned long   newDTSize;
     phandle_t       ph;
-    int ret;
+    int             ret;
 
     //
     // Get the boot arguments and devicetree.
@@ -118,12 +119,21 @@ int macosx_patch(void) {
 
     //
     // Read the MKEXT header.
+    // Search partitions until the MKEXT is found.
     //
-    ph = obp_devopen("hd:3,\\Wii.mkext");
+    for (uint32_t i = 2; i < 10; i++) {
+        snprintf(mkextPath, sizeof(mkextPath), "hd:%u,\\Wii.mkext", i);
+        ph = obp_devopen(mkextPath);
+        if (ph != 0) {
+            printk("found mkext at %s\n", mkextPath);
+            break;
+        }
+    }
     if (ph == 0) {
         printk("failed to open mkext\n");
         return 0;
     }
+
     ret = obp_devseek(ph, 0, 0);
     if (ret !=  0) {
         printk("failed to seek mkext\n");
