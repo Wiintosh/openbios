@@ -254,6 +254,12 @@ fatfs_files_probe(fatfs_info_t *dummy)
 }
 
 static void
+fatfs_files_get_fstype(fatfs_info_t *dummy)
+{
+	PUSH( pointer2cell(strdup("FAT")) );
+}
+
+static void
 fatfs_initializer(fatfs_info_t *dummy)
 {
     fword("register-fs-package");
@@ -267,6 +273,10 @@ NODE_METHODS( fatfs ) = {
     { "seek",   fatfs_files_seek    },
     { "load",   fatfs_files_load    },
     { "dir",    fatfs_files_dir     },
+
+    /* special */
+	{ "get-fstype", fatfs_files_get_fstype	},
+
     { NULL,     fatfs_initializer   },
 };
 
