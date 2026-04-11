@@ -164,6 +164,17 @@ extern unsigned long timer_freq;
 static void
 cpu_generic_init(const struct cpudef *cpu)
 {
+    unsigned long cpuFreq = 0;
+    unsigned long busFreq = 0;
+
+    if (wii_platform == WII_CAFE) {
+        cpuFreq = WII_CAFE_CPU_FREQ;
+        busFreq = WII_CAFE_BUS_FREQ;
+    } else {
+        cpuFreq = WII_RVL_CPU_FREQ;
+        busFreq = WII_RVL_BUS_FREQ;
+    }
+
     push_str("/cpus");
     fword("find-device");
 
@@ -220,18 +231,18 @@ cpu_generic_init(const struct cpudef *cpu)
     push_str("tlb-size");
     fword("property");
 
-    timer_freq = 248625000 / 4; // TODO: the timebase.
+    timer_freq = busFreq / 4;
     PUSH(timer_freq);
     fword("encode-int");
     push_str("timebase-frequency");
     fword("property");
 
-    PUSH(1243125000); // TODO: the CPU freq
+    PUSH(cpuFreq);
     fword("encode-int");
     push_str("clock-frequency");
     fword("property");
 
-    PUSH(248625000); // TODO: the bus freq
+    PUSH(busFreq);
     fword("encode-int");
     push_str("bus-frequency");
     fword("property");
