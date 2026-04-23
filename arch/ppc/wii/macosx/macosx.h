@@ -73,6 +73,7 @@ extern uint32_t xnu_read_darwin_version(macho_sym_context_t *symContext);
 //
 // xnu.c
 //
+extern int xnu_get_symtab(macho_sym_context_t *symContext);
 extern int xnu_patch(void);
 
 #endif

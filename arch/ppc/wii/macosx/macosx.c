@@ -55,6 +55,39 @@ static int obp_devseek(phandle_t ph, int hi, int lo) {
     return ret;
 }
 
+static const char* get_mkext_name(void) {
+    macho_sym_context_t kernel_syms;
+    uint32_t            xnu_version;
+
+    //
+    // Get the kernel symbol table.
+    //
+    if (!xnu_get_symtab(&kernel_syms)) {
+        printk("Failed to get kernel symbol table\n");
+        return 0;
+    }
+
+    xnu_version = xnu_read_darwin_version(&kernel_syms);
+    if (xnu_version == 0) {
+        return 0;
+    }
+
+    if (xnu_match_darwin_version(xnu_version, XNU_VERSION_CHEETAH_MIN, XNU_VERSION_CHEETAH_MAX)) {
+        return "Wii_cheetah.mkext";
+    } else if (xnu_match_darwin_version(xnu_version, XNU_VERSION_PUMA_MIN, XNU_VERSION_PUMA_MAX)) {
+        return "Wii_puma.mkext";
+    } else if (xnu_match_darwin_version(xnu_version, XNU_VERSION_JAGUAR_MIN, XNU_VERSION_JAGUAR_MAX)) {
+        return "Wii_jaguar.mkext";
+    } else if (xnu_match_darwin_version(xnu_version, XNU_VERSION_PANTHER_MIN, XNU_VERSION_PANTHER_MAX)) {
+        return "Wii_panther.mkext";
+    } else if (xnu_match_darwin_version(xnu_version, XNU_VERSION_TIGER_MIN, XNU_VERSION_TIGER_MAX)) {
+        return "Wii_tiger.mkext";
+    } else {
+        printk("Unknown Mac OS X version\n");
+        return 0;
+    }
+}
+
 boot_args_ptr macosx_get_boot_args(void) {
     phandle_t   memory_map;
     uint32_t*   prop;
@@ -89,6 +122,7 @@ int macosx_patch(void) {
     void            *mkextPtr;
     mkext_header    mkextHeader;
     unsigned long   prop[2];
+    const char*     mkextFileName;
     char            mkextName[32];
     char            mkextPath[32];
     void            *newDT;
@@ -117,12 +151,17 @@ int macosx_patch(void) {
         return 0;
     }
 
+    mkextFileName = get_mkext_name();
+    if (!mkextFileName) {
+        return 0;
+    }
+
     //
     // Read the MKEXT header.
     // Search partitions until the MKEXT is found.
     //
     for (uint32_t i = 2; i < 10; i++) {
-        snprintf(mkextPath, sizeof(mkextPath), "hd:%u,\\Wii.mkext", i);
+        snprintf(mkextPath, sizeof(mkextPath), "hd:%u,\\%s", i, mkextFileName);
         ph = obp_devopen(mkextPath);
         if (ph != 0) {
             printk("found mkext at %s\n", mkextPath);

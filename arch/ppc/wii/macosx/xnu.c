@@ -32,7 +32,7 @@
 //
 #define XNU_PATCH_COLORTABLE            0
 
-static int xnu_get_symtab(macho_sym_context_t *symContext) {
+int xnu_get_symtab(macho_sym_context_t *symContext) {
     phandle_t   memory_map;
     uint32_t*   prop;
     int         proplen;
