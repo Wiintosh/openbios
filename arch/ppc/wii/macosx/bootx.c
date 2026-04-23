@@ -39,7 +39,7 @@ static int macosx_check_verbose_bootargs(void) {
     if (bootargs[0] != '\0') {
         dash = 0;
         bootargsPtr = bootargs;
-        
+
         while ((tc = *bootargsPtr) != '\0') {
             tc = tolower(tc);
 
@@ -83,8 +83,8 @@ int macosx_patch_bootx(char *base, unsigned long length) {
     int found_verbose;
     static const char bootx_kernelcache_repl[] = "zznoprelink.%08lX";
     static const char bootx_verbose_find1[] = { 0x38, 0x60, 0x00, 0x10, 0x48 };
-    static const char bootx_verbose_find2[] = { 0x38, 0x60, 0x00, 0x00 }; 
-    static const char bootx_verbose_repl2[] = { 0x38, 0x60, 0x00, 0x10 }; 
+    static const char bootx_verbose_find2[] = { 0x38, 0x60, 0x00, 0x00 };
+    static const char bootx_verbose_repl2[] = { 0x38, 0x60, 0x00, 0x10 };
 
     //
     // Check that this is actually BootX.
