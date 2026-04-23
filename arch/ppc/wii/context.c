@@ -71,7 +71,7 @@ static void start_main(void)
     /* Set up client context */
     client_ctx = init_context(image_stack, sizeof image_stack, 1);
     __context = client_ctx;
-    
+
     /* Start the real fun */
     entry();
 
@@ -93,7 +93,7 @@ init_context(uint8_t *stack, uint32_t stack_size, int num_params)
     /* Fill in reasonable default for flat memory model */
     ctx->sp = virt_to_phys(SP_LOC(ctx));
     ctx->return_addr = virt_to_phys(__exit_context);
-    
+
     return ctx;
 }
 
@@ -105,7 +105,7 @@ arch_init_program(void)
     ucell entry, param;
     char *macho;
     unsigned long machoTop;
-    
+
     /* According to IEEE 1275, PPC bindings:
      *
      *    MSR = FP, ME + (DR|IR)
@@ -134,7 +134,7 @@ arch_init_program(void)
     feval("load-state >ls.param @");
     param = POP();
     ctx->param[0] = param;
-    
+
     /* Set entry point */
     feval("load-state >ls.entry @");
     entry = POP();
@@ -179,7 +179,7 @@ struct context *switch_to(struct context *ctx)
                       "bl __switch_context\n\t"
                       "lwz %%r9, %0\n\t"
                       "mtlr %%r9\n\t" : "=m" (lr) : "m" (lr) : "%r9" );
-    
+
     ret = __context;
     __context = (struct context *)save;
     return ret;
