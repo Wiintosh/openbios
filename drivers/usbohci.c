@@ -383,7 +383,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 {
 	td_t *cur;
 
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	unsigned char *dataAlignedBuf;
 	unsigned char *dataBuf;
 	int dataLen;
@@ -513,7 +513,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 	OHCI_INST(dev->controller)->opreg->HcControl &= CPU_TO_USBHC(~ControlListEnable);
 	mdelay(1);
 
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	// Copy data back to original buffer.
 	DC_INVALIDATE(dataAlignedBuf, dataLen);
 	memcpy(dataBuf, dataAlignedBuf, dataLen);
@@ -535,7 +535,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *data, int finalize)
 
 	td_t *cur, *next;
 
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	unsigned char *dataAlignedBuf;
 	unsigned char *dataBuf;
 	int dataLen;
@@ -645,7 +645,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *data, int finalize)
 	OHCI_INST(ep->dev->controller)->opreg->HcControl &= CPU_TO_USBHC(~BulkListEnable);
 	mdelay(1);
 
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	// Copy data back to original buffer.
 	DC_INVALIDATE(dataAlignedBuf, dataLen);
 	memcpy(dataBuf, dataAlignedBuf, dataLen);
@@ -673,7 +673,7 @@ struct _intrq_td {
 	u8			*data;
 	struct _intrq_td	*next;
 	struct _intr_queue	*intrq;
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	u32 pad[4]; // Padding to force 64-byte alignment.
 #endif
 } __attribute__ ((packed));
@@ -725,7 +725,7 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 	intr_queue_t *const intrq;
 	ofmem_posix_memalign((void **)&intrq, sizeof(intrq->ed), sizeof(*intrq));
 	memset(intrq, 0, sizeof(*intrq));
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	ofmem_posix_memalign((void**)&intrq->data, 0x20, ((reqcount * reqsize) + 0x20) & ~(0x1F));
 #else
 	intrq->data = (u8 *)malloc(reqcount * reqsize);
@@ -986,7 +986,7 @@ int ob_usb_ohci_init (const char *path, uint32_t addr)
 //	int i;
 
 	usb_debug("ohci_init: %s addr = %x\n", path, addr);
-#if CONFIG_WII
+#ifdef CONFIG_WII
 	// No PCI on Wii, directly use the passed physical address.
 	ctrl = ohci_init((void *)addr);
 #else

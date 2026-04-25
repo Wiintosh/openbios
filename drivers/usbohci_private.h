@@ -226,7 +226,7 @@ extern void invalidate_dcache_range(char *start, char *stop);
 		u32 tail_pointer;
 		u32 head_pointer;
 		u32 next_ed;
-#if CONFIG_WII
+#ifdef CONFIG_WII
 		u32 pad[4]; // Padding to force 32-byte alignment.
 #endif
 	} __attribute__ ((packed)) ed_t;
@@ -247,7 +247,7 @@ extern void invalidate_dcache_range(char *start, char *stop);
 		u32 current_buffer_pointer;
 		u32 next_td;
 		u32 buffer_end;
-#if CONFIG_WII
+#ifdef CONFIG_WII
 		u32 pad[4]; // Padding to force 32-byte alignment.
 #endif
 	} __attribute__ ((packed)) td_t;
