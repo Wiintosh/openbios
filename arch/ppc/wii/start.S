@@ -189,6 +189,18 @@ GLOBL(__vectors_end):
     .text
 GLOBL(_start):
     //
+    // We may be entered with translation on through a virtual alias of our
+    // load address (the Dolphin emulator enters at 0x9xxxxxxx). Drop to real
+    // mode at the linked physical address. Harmless when already in real mode.
+    //
+    LOAD_REG_IMMEDIATE(r3, _start_real)
+    mtsrr0	r3
+    li		r0, 0
+    mtsrr1	r0
+    rfi
+
+_start_real:
+    //
     // Ensure MMU is off.
     //
     li		r0, 0

@@ -81,6 +81,17 @@ unsigned long isa_io_base;
 
 extern struct _console_ops rvl_console_ops, cafe_console_ops;
 
+//
+// WII_NO_STARLET: build for an environment with no Starlet-side loader and
+// only the hardware the Dolphin emulator models. Video goes straight to the
+// XFB (no Starlet RGB conversion) and USB/SDHC are left alone.
+//
+#ifdef WII_NO_STARLET
+#define WII_HAVE_STARLET 0
+#else
+#define WII_HAVE_STARLET 1
+#endif
+
 int is_apple(void)
 {
     return 1;
@@ -139,6 +150,8 @@ void entry(void) {
 #ifdef CONFIG_DEBUG_CONSOLE
     if (is_wii_cafe()) {
         init_console(cafe_console_ops);
+    } else if (rvl_gecko_probe()) {
+        init_console(rvl_console_ops);
     }
 #endif
 
@@ -476,6 +489,7 @@ dma_sync(void)
     flush_icache_range(cell2pointer(virt), cell2pointer(virt + size));
 }
 
+#ifndef WII_NO_STARLET
 static void ehci_disable(uint32_t addr) {
     // Stop EHCI controller and wait for halt bit to be set.
     out_be32((volatile unsigned int*)(addr + 0x10), in_be32((volatile unsigned int*)(addr + 0x10)) & ~(0x1));
@@ -489,6 +503,7 @@ static void ehci_disable(uint32_t addr) {
         mdelay(1);
     }
 }
+#endif
 
 void
 arch_of_init(void)
@@ -520,7 +535,7 @@ arch_of_init(void)
     //
     // Pulse the disc light on Wii.
     //
-    if (wii_platform == WII_RVL) {
+    if (wii_platform == WII_RVL && WII_HAVE_STARLET) {
         out_be32((volatile unsigned int*)0x0D0000C0, in_be32((volatile unsigned int*)0x0D0000C0) | 0x20);
         mdelay(2000);
         out_be32((volatile unsigned int*)0x0D0000C0, in_be32((volatile unsigned int*)0x0D0000C0) & ~(0x20));
@@ -607,17 +622,31 @@ arch_of_init(void)
     push_str("/chosen");
     fword("find-device");
 
-    push_str(stdin_path);
-    fword("pathres-resolve-aliases");
-    push_str("input-device");
-    fword("$setenv");
+    //
+    // In a WII_NO_STARLET build with a USB Gecko attached, leave Forth's
+    // console on the Gecko (the kernel's default) instead of moving it to the
+    // keyboard and screen. That gives a scriptable serial Forth prompt.
+    //
+    if (WII_HAVE_STARLET || !rvl_gecko_present()) {
+        push_str(stdin_path);
+        fword("pathres-resolve-aliases");
+        push_str("input-device");
+        fword("$setenv");
 
-    push_str(stdout_path);
-    fword("pathres-resolve-aliases");
-    push_str("output-device");
-    fword("$setenv");
+        push_str(stdout_path);
+        fword("pathres-resolve-aliases");
+        push_str("output-device");
+        fword("$setenv");
 
-    fword("activate-tty-interface");
+        fword("activate-tty-interface");
+    } else {
+        rvl_gecko_create_node();
+        push_str("/chosen");
+        fword("find-device");
+        setenv("input-device", "usbgecko");
+        setenv("output-device", "usbgecko");
+        printk("Forth console on USB Gecko\n");
+    }
 
     //
     // Install GPU driver.
@@ -633,7 +662,7 @@ arch_of_init(void)
         push_str("/video");
         fword("find-device");
         dnode = get_cur_dev();
-        ob_flipper_vi_init(get_path_from_ph(dnode), RVL_XFB_BASE, RVL_FB_BASE);
+        ob_flipper_vi_init(get_path_from_ph(dnode), RVL_XFB_BASE, WII_HAVE_STARLET ? RVL_FB_BASE : 0);
         feval("['] flipper-vi-driver-fcode 2 cells + 1 byte-load");
 
         //
@@ -643,8 +672,12 @@ arch_of_init(void)
         // Setting these here will allow the OS X USB host controller drivers to expect a
         // more normal state as they may load in any order.
         //
+#ifndef WII_NO_STARLET
         out_be32((volatile unsigned int*)0x0D0400CC, in_be32((volatile unsigned int*)0x0D0400CC) | 0xE9800);
+#endif
     }
+
+#ifndef WII_NO_STARLET
 
     //
     // Reset EHCI controllers to force all devices to OHCI.
@@ -691,6 +724,18 @@ arch_of_init(void)
     fword("find-device");
     dnode = get_cur_dev();
     ob_wii_shdc_init(get_path_from_ph(dnode), get_int_property(dnode, "reg", NULL));
+#else
+    printk("WII_NO_STARLET build: USB and SDHC not initialized\n");
+#endif
+
+    //
+    // Use a RAM disk if the loader provided one and no other disk claimed hd.
+    //
+    if (is_wii_rvl() && !get_property(find_dev("/aliases"), "hd", NULL)) {
+        push_str("/");
+        fword("find-device");
+        ob_wii_ramdisk_init(RVL_RAMDISK_BASE);
+    }
 
     device_end();
 
@@ -712,6 +757,13 @@ arch_of_init(void)
             autoboot = 0;
             break;
         }
+    }
+
+    //
+    // With the Forth console on a USB Gecko, booting is driven from the prompt.
+    //
+    if (!WII_HAVE_STARLET && rvl_gecko_present()) {
+        autoboot = 0;
     }
 
     setenv("auto-boot?", autoboot ? "true" : "false" );

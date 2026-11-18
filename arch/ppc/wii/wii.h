@@ -41,6 +41,14 @@ extern int is_wii_cafe(void);
 #define RVL_FB_BASE                             0x10000000
 #define RVL_XFB_BASE                            0x1012C000
 
+// USB Gecko serial console (console.c).
+int rvl_gecko_probe(void);
+int rvl_gecko_present(void);
+int rvl_gecko_create_node(void);
+
+// Optional RAM disk image placed in free MEM2 by the loader (see drivers/wii_ramdisk.c).
+#define RVL_RAMDISK_BASE                        0x10400000
+
 #define CAFE_LATTE_IPCPPCMSG        0x0D800000
 #define CAFE_LATTE_IPCPPCCTRL       0x0D800004
 #define CAFE_CMD_POWEROFF           0xCAFE0001
