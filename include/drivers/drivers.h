@@ -151,6 +151,7 @@ int ob_flipper_vi_init(const char *path, unsigned long xfb_base, unsigned long f
 #endif
 #ifdef CONFIG_DRIVER_WII_SDHC
 int ob_wii_shdc_init(const char *path, unsigned long mmio_base);
+int ob_wii_ramdisk_init(unsigned long base);
 #endif
 int macio_get_nvram_size(void);
 void macio_nvram_put(char *buf);

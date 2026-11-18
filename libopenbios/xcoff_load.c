@@ -152,7 +152,7 @@ xcoff_init_program(void)
 	COFF_aouthdr_t *ahdr;
 	COFF_scnhdr_t *shdr;
 	uint32_t offset;
-	size_t total_size = 0;
+	size_t total_size __attribute__((unused)) = 0;
 	int i;
 
 	feval("load-base");
