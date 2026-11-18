@@ -895,7 +895,7 @@ ohci_poll_intr_queue(void *const q_)
 static void
 ohci_process_done_queue(ohci_t *const ohci, const int spew_debug)
 {
-	int i, j;
+	int i __attribute__((unused)), j __attribute__((unused));
 
 	/* Temporary queue of interrupt queue TDs (to reverse order). */
 	intrq_td_t *temp_tdq = NULL;

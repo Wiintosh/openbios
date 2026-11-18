@@ -246,7 +246,7 @@ static void dump_return(prom_args_t *pb)
 static int
 handle_calls(prom_args_t *pb)
 {
-	int i, j, dstacksave;
+	int i, j __attribute__((unused)), dstacksave;
 	ucell val;
 
 #ifdef DEBUG_CIF
@@ -306,7 +306,7 @@ of_client_interface(int *params)
 {
 	prom_args_t *pb = (prom_args_t*)params;
 	ucell val;
-	int i, j, dstacksave;
+	int i, j __attribute__((unused)), dstacksave;
 
 	if (pb->nargs < 0 || pb->nret < 0 ||
             pb->nargs + pb->nret > PROM_MAX_ARGS)

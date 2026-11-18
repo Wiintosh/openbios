@@ -476,7 +476,7 @@ elf_init_program(void)
 	int i;
 	Elf_ehdr *ehdr;
 	Elf_phdr *phdr;
-	size_t size, total_size = 0;
+	size_t size, total_size __attribute__((unused)) = 0;
 	char *addr;
 	uintptr_t tmp;
 
