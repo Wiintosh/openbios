@@ -35,6 +35,7 @@
   <object source="flipper_vi.c" condition="DRIVER_FLIPPER_VI"/>
   <object source="wii_ave.c" condition="DRIVER_FLIPPER_VI"/>
   <object source="wii_sdhc.c" condition="DRIVER_WII_SDHC"/>
+  <object source="wii_ramdisk.c" condition="DRIVER_WII_SDHC"/>
  </library>
 
  <dictionary name="openbios" target="forth">
